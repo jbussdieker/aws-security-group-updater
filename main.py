@@ -42,8 +42,13 @@ for region in regions:
 
           # Revoke rule for old CIDR and add rule for new one
           sgc = ec2.SecurityGroup(security_group["GroupId"])
-          sgc.revoke_ingress(IpProtocol=ip_permission["IpProtocol"], CidrIp=old_cidr, FromPort=ip_permission["FromPort"], ToPort=ip_permission["ToPort"])
-          sgc.authorize_ingress(IpProtocol=ip_permission["IpProtocol"], CidrIp=new_cidr, FromPort=ip_permission["FromPort"], ToPort=ip_permission["ToPort"])
+
+          if "FromPort" in ip_permission.keys() and "ToPort" in ip_permission.keys():
+            sgc.revoke_ingress(IpProtocol=ip_permission["IpProtocol"], CidrIp=old_cidr, FromPort=ip_permission["FromPort"], ToPort=ip_permission["ToPort"])
+            sgc.authorize_ingress(IpProtocol=ip_permission["IpProtocol"], CidrIp=new_cidr, FromPort=ip_permission["FromPort"], ToPort=ip_permission["ToPort"])
+          else:
+            sgc.revoke_ingress(IpProtocol=ip_permission["IpProtocol"], CidrIp=old_cidr)
+            sgc.authorize_ingress(IpProtocol=ip_permission["IpProtocol"], CidrIp=new_cidr)
 
         # Does the rule contain a reference to the new CIDR?
         if cidr_ip == new_cidr:
